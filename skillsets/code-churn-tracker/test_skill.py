@@ -56,6 +56,15 @@ def test_skill():
 
     print()
     print("测试 3: 执行代码变更率分析")
+
+    # 清理可能存在的旧报告文件（避免并行测试时的竞态条件）
+    output_file = 'code_churn_report.txt'
+    if os.path.exists(output_file):
+        try:
+            os.remove(output_file)
+        except Exception:
+            pass  # 忽略删除失败
+
     try:
         result = subprocess.run(
             ['python3', impl_path],
@@ -88,6 +97,7 @@ def test_skill():
     print("测试 4: 验证输出文件")
     output_file = 'code_churn_report.txt'
 
+    # 检查文件是否由本次测试生成
     if not os.path.exists(output_file):
         print(f"❌ 输出文件不存在: {output_file}")
         return False
@@ -131,6 +141,13 @@ def test_skill():
     print("2. 关注高变动文件，评估是否需要重构")
     print("3. 定期运行此分析以跟踪代码健康度")
     print("4. 在代码审查时参考变更率数据")
+
+    # 清理生成的报告文件（避免并行测试干扰）
+    try:
+        if os.path.exists(output_file):
+            os.remove(output_file)
+    except Exception:
+        pass  # 忽略清理失败
 
     return True
 

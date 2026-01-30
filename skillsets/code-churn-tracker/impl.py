@@ -10,6 +10,18 @@ from datetime import datetime, timedelta
 from collections import defaultdict
 from pathlib import Path
 
+def parse_git_date(date_str):
+    """解析 Git 日期字符串，处理各种格式"""
+    # Git format: "2026-01-30 19:58:09 +0800"
+    # Python < 3.11 的 fromisoformat 不支持带空格的 ISO 格式
+    # 使用 strptime 作为可靠的替代方案
+    try:
+        # 尝试标准 ISO 格式（Python 3.11+）
+        return datetime.fromisoformat(date_str)
+    except ValueError:
+        # 回退到 strptime（适用于所有 Python 版本）
+        return datetime.strptime(date_str, '%Y-%m-%d %H:%M:%S %z')
+
 # 需要排除的文件模式
 EXCLUDE_PATTERNS = [
     r'node_modules/',
@@ -119,12 +131,12 @@ def analyze_commits(commits, git_root):
         return {}, {}
 
     total_commits = len(commits)
-    start_date = datetime.fromisoformat(commits[-1]['date'].replace(' ', 'T'))
-    end_date = datetime.fromisoformat(commits[0]['date'].replace(' ', 'T'))
+    start_date = parse_git_date(commits[-1]['date'])
+    end_date = parse_git_date(commits[0]['date'])
     days_span = max(1, (end_date - start_date).days)
 
     for commit in commits:
-        commit_date = datetime.fromisoformat(commit['date'].replace(' ', 'T'))
+        commit_date = parse_git_date(commit['date'])
         author = commit['author']
 
         for status, file_path in commit['files']:

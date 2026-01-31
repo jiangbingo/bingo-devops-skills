@@ -149,12 +149,14 @@ def generate_report(repos):
     orig_storage_cleanup = sum(r.get('diskUsage', 0) for r in orig_cleanup_candidates)
     
     report.append("Fork 项目清理:")
-    report.append(f"  - 可删除数量: {len(fork_cleanup_candidates)} 个 (占总 fork: {len(fork_cleanup_candidates)/len(fork_repos)*100:.1f}%)")
+    fork_pct = (len(fork_cleanup_candidates) / len(fork_repos) * 100) if len(fork_repos) > 0 else 0
+    report.append(f"  - 可删除数量: {len(fork_cleanup_candidates)} 个 (占总 fork: {fork_pct:.1f}%)")
     report.append(f"  - 可释放空间: {fork_storage_cleanup / 1024:.2f} GB")
-    
+
     report.append("")
     report.append("原始项目清理:")
-    report.append(f"  - 可删除数量: {len(orig_cleanup_candidates)} 个 (占总原始: {len(orig_cleanup_candidates)/len(orig_repos)*100:.1f}%)")
+    orig_pct = (len(orig_cleanup_candidates) / len(orig_repos) * 100) if len(orig_repos) > 0 else 0
+    report.append(f"  - 可删除数量: {len(orig_cleanup_candidates)} 个 (占总原始: {orig_pct:.1f}%)")
     report.append(f"  - 可释放空间: {orig_storage_cleanup / 1024:.2f} GB")
     
     report.append("")

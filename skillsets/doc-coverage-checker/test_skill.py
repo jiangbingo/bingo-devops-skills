@@ -250,7 +250,12 @@ def test_on_current_project():
     print("这将分析 bingo-devops-skills 项目的文档覆盖率")
     print()
 
-    response = input("是否继续？(y/N): ").strip().lower()
+    try:
+        response = input("是否继续？(y/N): ").strip().lower()
+    except EOFError:
+        # CI 环境中没有 stdin，跳过交互式测试
+        print("  ℹ️  检测到非交互环境（CI），跳过当前项目分析")
+        return
 
     if response == 'y':
         impl_path = 'skillsets/doc-coverage-checker/impl.py'

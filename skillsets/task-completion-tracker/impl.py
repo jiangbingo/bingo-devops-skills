@@ -8,6 +8,19 @@ import re
 from datetime import datetime, timedelta
 from collections import defaultdict, Counter
 
+
+def parse_git_date(date_str):
+    """解析 Git 日期字符串，处理各种格式"""
+    # Git format: "2026-01-30 19:58:09 +0800"
+    # Python < 3.11 的 fromisoformat 不支持带空格的 ISO 格式
+    # 使用 strptime 作为可靠的替代方案
+    try:
+        # 尝试标准 ISO 格式（Python 3.11+）
+        return datetime.fromisoformat(date_str)
+    except ValueError:
+        # 回退到 strptime（适用于所有 Python 版本）
+        return datetime.strptime(date_str, '%Y-%m-%d %H:%M:%S %z')
+
 # 约定式提交类型
 COMMIT_TYPES = {
     'feat': '新功能',
@@ -49,7 +62,7 @@ def get_git_commits(days=90):
             commit_hash, commit_date, commit_msg = parts
             commits.append({
                 'hash': commit_hash,
-                'date': datetime.fromisoformat(commit_date.replace(' ', 'T')),
+                'date': parse_git_date(commit_date),
                 'message': commit_msg.strip(),
             })
 

@@ -10,7 +10,24 @@ def fetch_repos():
         capture_output=True,
         text=True
     )
-    return json.loads(result.stdout)
+
+    # 检查命令是否成功执行
+    if result.returncode != 0:
+        print("⚠️  无法连接到 GitHub API（可能需要认证）")
+        print("   提示: 运行 'gh auth login' 进行认证")
+        return []
+
+    # 检查输出是否为空
+    if not result.stdout or result.stdout.strip() == '':
+        print("ℹ️  未找到任何 GitHub 仓库")
+        return []
+
+    try:
+        return json.loads(result.stdout)
+    except json.JSONDecodeError as e:
+        print(f"❌ 解析 GitHub API 响应失败: {e}")
+        print(f"   响应内容: {result.stdout[:200] if result.stdout else '(空)'}")
+        return []
 
 def generate_report(repos):
     now = datetime.now()
